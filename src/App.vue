@@ -2,10 +2,12 @@
   <div id="app">
     <h1>To-do-list</h1>
     <ToDoForm @todo-added="addToDo" />
-    <h2 id="list-summary">{{ listSummary }}</h2>
+    <h2 id="list-summary" ref="listSummary" tabindex="-1">{{ listSummary }}</h2>
     <ul aria-labelledby="list-summary" class="stack-large">
       <li v-for="item in Todoitems" :key="item.id">
-        <Todoitem :label="item.label" :done="item.done" :id="item.id" @checkbox-changed="updateDoneStatus(item.id)" />
+        <Todoitem :label="item.label" :done="item.done" :id="item.id"
+        @item-deleted="deleteToDo(item.id)"
+            @item-edited="editToDo(item.id, $event)" @checkbox-changed="updateDoneStatus(item.id)" />
       </li>
     </ul>
 
@@ -39,9 +41,18 @@ export default {
       this.Todoitems.push({ id: uniqueId('todo-'), label: toDoLabel, done: false })
     },
     updateDoneStatus(toDoId) {
-  const toDoToUpdate = this.Todoitems.find((item) => item.id === toDoId)
-  toDoToUpdate.done = !toDoToUpdate.done
-}
+      const toDoToUpdate = this.Todoitems.find((item) => item.id === toDoId)
+      toDoToUpdate.done = !toDoToUpdate.done
+    }, deleteToDo(toDoId) {
+      const itemIndex = this.Todoitems.findIndex((item) => item.id === toDoId);
+      this.Todoitems.splice(itemIndex, 1);
+      this.$refs.listSummary.focus();
+    },
+    editToDo(toDoId, newLabel) {
+      const toDoToEdit = this.ToDoItems.find((item) => item.id === toDoId);
+      toDoToEdit.label = newLabel;
+    }
+
 
   },
   computed: {

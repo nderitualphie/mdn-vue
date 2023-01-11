@@ -5,7 +5,7 @@
       <label :for="id" class="checkbox-label">{{ label }}</label>
     </div>
     <div class="btn-group">
-      <button type="button" class="btn" @click="toggleToItemEditForm">
+      <button type="button" class="btn" ref="editButton" @click="toggleToItemEditForm">
         Edit <span class="visually-hidden">{{ label }}</span>
       </button>
       <button type="button" class="btn btn__danger" @click="deleteToDo">
@@ -13,9 +13,9 @@
       </button>
     </div>
   </div>
-  
-  
-  <ToDoEditForm  v-else :id="id" :label="label" />
+
+
+  <ToDoEditForm v-else :id="id" :label="label" @item-edited="itemEdited" @edit-cancelled="editCancelled" />
 
 </template>
 
@@ -35,18 +35,42 @@ export default {
   },
   data() {
     return {
-      isDone: this.done,
+
       isEditing: false
 
     }
   },
+  computed: {
+    isDone() {
+      return this.done;
+    }
+  },
+
   methods: {
     deleteToDo() {
       this.$emit('item-deleted');
     },
     toggleToItemEditForm() {
+      console.log(this.$refs.editButton);
       this.isEditing = true;
-    }
+    },
+    itemEdited(newLabel) {
+      this.$emit('item-edited', newLabel);
+      this.isEditing = false;
+      this.focusOnEditButton();
+    },
+    editCancelled() {
+      this.isEditing = false;
+      this.focusOnEditButton();
+    }, 
+    focusOnEditButton() {
+  const editButtonRef = this.$refs.editButton;
+  editButtonRef.focus();
+}
+
+
+
+
   }
 }
 </script>
